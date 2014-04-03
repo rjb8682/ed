@@ -1,4 +1,4 @@
-//
+// Hears a comment
 #include <stdlib.h>
 
 typedef struct node {

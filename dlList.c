@@ -12,6 +12,7 @@ typedef struct node {
 struct dListStruct {
 
 	Node * current;
+	size_t currIndex;
 	Node * last;
 	size_t size;
 
@@ -43,6 +44,7 @@ DlList_T dll_create( void ) {
 	if (new != 0) {
 
 		new->current = 0;
+		new->currIndex = 0;
 		new->last = 0;
 		new->size = 0;
 
@@ -59,12 +61,10 @@ void dll_destroy( DlList_T lst ) {
 	lst->current = lst->last;
 
 	while(lst->current->previous) {
-		printf("cur %d\n", (int) lst->current->data);
 
 		lst->current = lst->current->previous;
 		free(lst->current->next);
 	}
-	printf("cur %d\n", (int) lst->current->data);
 
 	free(lst->current);
 	free(lst);
@@ -72,22 +72,53 @@ void dll_destroy( DlList_T lst ) {
 }
 
 void dll_clear( DlList_T lst ) {
-/*
-	free(lst->previous);
-	free(lst->next);
 
-	lst->data = 0;
-	lst->previous = 0;
-	lst->next = 0;
-*/
+	assert(lst != 0);
+
+	while(lst->current->previous) {
+
+		lst->current = lst->current->previous;
+		free(lst->current->next);
+	}
+
+	free(lst->current);
+	lst->current = 0;
+	lst->currIndex = 0;
+	lst->last = 0;
+	lst->size = 0;
+
 }
 
 bool dll_move_to( DlList_T lst, int indx ) {
-	return 0;
+
+	if (indx < 0 || indx >= lst->size) { return false; }
+
+	int direction = -1;
+
+	if (indx > lst->currIndex) {
+		direction = 1;
+	}
+
+	while(lst->currIndex != indx) {
+
+		if (direction == 1) {
+			lst->current = lst->current->next;
+		} else {
+			lst->current = lst->current->previous;
+		}
+
+		lst->currIndex += direction;
+
+	}
+
+	return true;
+
 }
 
 int dll_has_next( DlList_T lst ) {
-	return 0;
+
+	return lst->currIndex >= 0 && lst->currIndex < lst->size;
+
 }
 
 void * dll_next( DlList_T lst ) {
